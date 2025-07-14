@@ -4,6 +4,7 @@ namespace jtb
 {
 	void tui::init()
 	{
+		windowIndex = 0;
 		w.clear();
 		window temp(sizeX,sizeY,0,0);
 		w.push_back(temp);
@@ -24,15 +25,77 @@ namespace jtb
 	void tui::draw()
 	{
 		//t.maxLineLength = sizeX;
-		setCursor();	
-		t.lines = w[0].render();
-		std::cout<<t.comp();
+		setCursor();
+		window * toRender = getWindow(windowIndex);
+		if(!toRender)
+			return;
+		t.lines = toRender->render();
+		std::cout<<t.comp()<<std::flush;
 		/*
 		for(auto it = w.begin(); it!=w.end(); ++it)
 		{
 			
 		}
 		/**/
+	}
+	std::deque<window>::iterator tui::getWindowIter(int i)
+	{
+		if(w.empty())
+			return w.end();
+		int k = 0;
+		for(auto it = w.begin(); it!=w.end();++k,++it)
+		{
+			if(k==i)
+			{
+				return it;
+			}
+		}
+		return w.end();
+	
+	}
+	window * tui::getWindow(int i)
+	{
+		if(w.empty())
+			return nullptr;
+		auto it = getWindowIter(i);
+		if(it == w.end())
+			return nullptr;
+		return &(*it);
+	}
+	std::deque<window>::iterator tui::getFirstWindowIter(std::string nameOrCat, bool getByCat)
+	{
+		if(w.empty())
+			return w.end();
+		if(getByCat)
+		{
+			for(auto it = w.begin(); it!=w.end();++it)
+			{
+				if(it->name == nameOrCat)
+				{
+					return it;
+				}
+			}
+		}
+		else
+		{
+			for(auto it = w.begin(); it!=w.end();++it)
+			{
+				if(it->category == nameOrCat)
+				{
+					return it;
+				}
+			}
+		}
+		return w.end();
+	}
+	window * tui::getFirstWindow(std::string nameOrCat, bool getByCat)
+	{
+		if(w.empty())
+			return nullptr;
+		auto it = getFirstWindowIter(nameOrCat,getByCat);
+		if(it == w.end())
+			return nullptr;
+		return &(*it);
 	}
 	void tui::addWindow(window & win)
 	{

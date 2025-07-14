@@ -12,7 +12,7 @@ namespace jtb
 			len = sizeX;
 		if(!useBorder)
 		{
-			for(;ret.w.size()<len && ret.w.size()<sizeX;)
+			for(;ret.w.size()<len && ret.w.size()+x<sizeX;)
 				ret.w += defBGChar;
 			return ret;
 			
@@ -71,7 +71,7 @@ namespace jtb
 			if(it->second.y>maxY)
 				maxY = it->second.y;
 		}
-		for(int i = 0; i<maxY+1; ++i)
+		for(int i = 0; i<maxY+1 && i<ret.size(); ++i)
 		{//corners and borders must be accounted for, y loop
 			if(ordering[i].empty())
 			{
