@@ -32,6 +32,10 @@ bool parseWindowAttr(rapidxml::xml_attribute<> * attr, window * w);
 
 bool parseWindow(rapidxml::xml_node<> * win, tui * t);
 
+bool parseString(rapidxml::xml_node<> * str, tui * t);
+
+bool parseInt(rapidxml::xml_node<> * integer, tui * t);
+
 bool loadFromXML(std::string filename, tui * t);
 	
 }

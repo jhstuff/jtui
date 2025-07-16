@@ -20,6 +20,8 @@ public:
 	bool autoSizeY;
 	terminal t;
 	std::deque<window> w;
+	std::map<std::string, std::string> strings;
+	std::map<std::string, int> ints;
 	int windowIndex;
 	input inp;
 	void init();

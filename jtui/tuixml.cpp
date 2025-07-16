@@ -185,7 +185,7 @@ bool parseWindowAttr(rapidxml::xml_attribute<> * attr, window * w)
 
 bool parseWindow(rapidxml::xml_node<> * win, tui * t)
 {
-	if(win->name() != std::string("window"))
+	/*if(win->name() != std::string("window"))
 	{
 		if(globals::ignoreUnknown)
 			return true;
@@ -195,7 +195,7 @@ bool parseWindow(rapidxml::xml_node<> * win, tui * t)
 			 + std::string(win->name());
 			return false;
 		}
-	}
+	}*/
 	window * w = &t->w.emplace_back(0,0,0,0); //fix: use better constructor
 	for(rapidxml::xml_attribute<> * attr = win->first_attribute(); attr; attr = attr->next_attribute())
 	{
@@ -207,6 +207,48 @@ bool parseWindow(rapidxml::xml_node<> * win, tui * t)
 		if(!parseObject(obj,w))
 			return false;
 	}
+	return true;
+}
+
+bool parseString(rapidxml::xml_node<> * str, tui * t)
+{
+	std::string name = "";
+	for(rapidxml::xml_attribute<> * attr = str->first_attribute(); attr; attr = attr->next_attribute())
+	{
+		if(attr->name() == std::string("name"))
+			name = attr->value();
+	}
+	if(name == "")
+	{
+		globals::error = "string has no name";
+		return false;
+	}
+	t->strings[name] = str->value();
+	return true;
+}
+
+bool parseInt(rapidxml::xml_node<> * integer, tui * t)
+{
+	std::string name = "";
+	int val = 0;
+	for(rapidxml::xml_attribute<> * attr = integer->first_attribute(); attr; attr = attr->next_attribute())
+	{
+		if(attr->name() == std::string("name"))
+			name = attr->value();
+	}
+	if(name == "")
+	{
+		globals::error = "int has no name";
+		return false;
+	}
+	bool stoiErr = false;;
+	val = helper::stoi(integer->value(),&stoiErr);
+	if(stoiErr)
+	{
+		globals::error = globals::errorStoi;
+		return false;
+	}
+	t->ints[name] = val;
 	return true;
 }
 
@@ -251,20 +293,36 @@ bool loadFromXML(std::string filename, tui * t)
 			return false;
 		}
 	}
-	if( !(curNode = curNode->first_node()) )
-	{
-		globals::error = "No window under jtuiconf";
-		if(globals::throwOnError)
-			throw std::runtime_error(globals::error); 
-		return false;
-	}
-	//parse windows in tui
+	//parse windows and variables in tui
 	for(rapidxml::xml_node<> * win = curNode; win; win = win->next_sibling())
 	{
-		if(!parseWindow(win,t))
+
+		if(win->name()==std::string("window")){
+		 if(!parseWindow(win,t))
 		{
 			if(globals::throwOnError)
 				throw std::runtime_error(globals::error); 
+			return false;
+		}}
+		else if(win->name()==std::string("string")){
+		 if(!parseString(win,t))
+		{
+			if(globals::throwOnError)
+				throw std::runtime_error(globals::error); 
+			return false;
+		}}
+		else if(win->name()==std::string("int")){
+		 if(!parseInt(win,t))
+		{
+			if(globals::throwOnError)
+				throw std::runtime_error(globals::error); 
+			return false;
+		}}
+		else if(!globals::ignoreUnknown)
+		{
+			globals::error = "Unknown node under jtuiconf";
+			if(globals::throwOnError)
+				throw std::runtime_error(globals::error);
 			return false;
 		}
 	}
