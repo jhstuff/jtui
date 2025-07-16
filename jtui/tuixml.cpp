@@ -293,6 +293,7 @@ bool loadFromXML(std::string filename, tui * t)
 			return false;
 		}
 	}
+	curNode = curNode->first_node();
 	//parse windows and variables in tui
 	for(rapidxml::xml_node<> * win = curNode; win; win = win->next_sibling())
 	{
