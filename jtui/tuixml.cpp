@@ -261,15 +261,22 @@ bool loadFromXML(std::string filename, tui * t)
 			throw std::runtime_error(globals::error); 
 		return false;
 	}
+	if(!std::ifstream(filename).good())
+	{
+		globals::error = "Could not open file: " + filename;
+		if(globals::throwOnError)
+			throw std::runtime_error(globals::error); 
+		return false;
+	}
 	rapidxml::xml_document<> doc;
+	rapidxml::file<> xmlF(filename.c_str());
 	try
 	{
-		rapidxml::file<> xmlF(filename.c_str());
 		doc.parse<0>(xmlF.data());
 	}
 	catch(const std::runtime_error & e)
 	{
-		globals::error = "Could not open file: " + filename;
+		globals::error = "Could not parse file: " + filename;
 		if(globals::throwOnError)
 			throw std::runtime_error(globals::error); 
 		return false;
